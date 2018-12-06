@@ -20,6 +20,14 @@ var PIN_WIDTH = 50;
 
 var PIN_HEIGHT = 70;
 
+var dictionary = {
+  palace: 'Дворец' ,
+  flat: 'Квартира',
+  house: 'Дом',
+  bungalo: 'Бунгало'
+}
+
+
 
 var getRandomItemFromArray = function (items) {
   var item = items[Math.floor(Math.random() * items.length)];
@@ -44,9 +52,14 @@ return Math.random() - 0.5;
 PHOTOS.sort(compareRandom);
 
 
+
 var getAdverts = function(advertsCount) {
   var adverts = [];
   for (var i = 0; i < advertsCount; i++) {
+
+    var x = getRandomInRange(40,1200);
+    var y = getRandomInRange(130, 630);
+
     var advert =
     {
       author: {
@@ -55,7 +68,7 @@ var getAdverts = function(advertsCount) {
 
       offer: {
         title: getRandomItemFromArray(TITLE),
-        address: 'location.x, location.y',
+        address: x + ','  + y,
         price: getRandomInRange(1000, 1000000),
         type: getRandomItemFromArray(TYPE),
         rooms: getRandomInRange(1, 5),
@@ -68,8 +81,8 @@ var getAdverts = function(advertsCount) {
       },
 
       location: {
-        x: getRandomInRange(40,1200),// координата x метки на карте. Значение ограничено размерами блока, в котором перетаскивается метка.
-        y: getRandomInRange(130, 630)// координата y метки на карте от 130 до 630.
+        x: x,// координата x метки на карте. Значение ограничено размерами блока, в котором перетаскивается метка.
+        y: y// координата y метки на карте от 130 до 630.
       }
     };
     adverts.push(advert);
@@ -121,22 +134,50 @@ var renderCard = function (advert) {
 
   cardElement.querySelector('.popup__title').textContent = advert.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = advert.offer.address;
-  cardElement.querySelector('.popup__text--price').textContent = advert.offer.price + ' ₽/ночь';
-  cardElement.querySelector('.popup__type').textContent = advert.offer.type;
+  cardElement.querySelector('.popup__text--price').textContent = advert.offer.price + '₽/ночь';
+  cardElement.querySelector('.popup__type').textContent =  dictionary[advert.offer.type];
   cardElement.querySelector('.popup__text--capacity').textContent = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей';
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ' выезд до ' + advert.offer.checkout;
-
-
-  cardElement.querySelector('.popup__features').textContent = advert.offer.features;
-
-
   cardElement.querySelector('.popup__description').textContent = advert.offer.description;
-
-
-    // cardElement.querySelector('.popup__photos').img.src = advert.offer.photos;
-
-
   cardElement.querySelector('.popup__avatar').src = advert.author.avatar;
+
+
+
+  // var cer = cardElement.querySelector('.popup__features');
+  // var ber = cer.appendChild(li);
+// var afterItem = cardElement.querySelector('.popup__description');
+
+
+var listItem = cardElement.querySelector('.popup__features');
+
+var fragment = document.createDocumentFragment();
+
+for (var i = 0; i < (advert.offer.features).length; i++) {
+  var item = document.createElement('li')
+  item.classList.add('popup__feature');
+  item.classList.add('popup__feature--wifi');
+
+  fragment.appendChild(item);
+}
+
+listItem.appendChild(fragment);
+
+// cardElement.insertBefore(listItem, afterItem);
+// cardElement.querySelector('.popup__features').appendChild('li').classList.add('popup__feature').classList.add('popup__feature--wifi');
+
+
+
+  // cardElement.querySelector('.popup__features')
+
+
+
+  // cardElement.querySelector('.popup__features').cl = advert.offer.features;
+
+
+    // cardElement.querySelector('.popup__photo').src = advert.offer.photos;
+
+
+
 
   return cardElement;
 };
