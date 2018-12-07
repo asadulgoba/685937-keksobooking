@@ -1,15 +1,15 @@
 'use strict';
 
-var AVATAR = ['img/avatars/user01.png', 'img/avatars/user02.png', 'img/avatars/user03.png', 'img/avatars/user04.png',
-'img/avatars/user05.png', 'img/avatars/user06.png', 'img/avatars/user07.png', 'img/avatars/user08.png'];
+// var AVATARS = ['img/avatars/user01.png', 'img/avatars/user02.png', 'img/avatars/user03.png', 'img/avatars/user04.png',
+// 'img/avatars/user05.png', 'img/avatars/user06.png', 'img/avatars/user07.png', 'img/avatars/user08.png'];
 
-var TITLE = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец',
+var TITLES = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец',
 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик',
 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
 
-var TYPE= ['palace', 'flat', 'house','bungalo'];
+var TYPES= ['palace', 'flat', 'house','bungalo'];
 
-var CHECKIN = ['12:00', '13:00', '14:00'];
+var CHECKINS = ['12:00', '13:00', '14:00'];
 
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 
@@ -20,14 +20,12 @@ var PIN_WIDTH = 50;
 
 var PIN_HEIGHT = 70;
 
-var dictionary = {
+var dictionaryFeatures = {
   palace: 'Дворец' ,
   flat: 'Квартира',
   house: 'Дом',
   bungalo: 'Бунгало'
 }
-
-
 
 var getRandomItemFromArray = function (items) {
   var item = items[Math.floor(Math.random() * items.length)];
@@ -39,19 +37,19 @@ var getRandomInRange = function (min, max) {
   return number;
 };
 
-var getArrayRandomLength = function (array) {
-  var length = array.length;
-  array.length = getRandomInRange(1, length + 1);
-    return array;
+var shuffleArray = function(array) {
+  function compareRandom() {
+  return Math.random() - 0.5;
+  }
+  return array.sort(compareRandom);
 };
 
-
-function compareRandom() {
-return Math.random() - 0.5;
-}
-PHOTOS.sort(compareRandom);
-
-
+var getRandomItemsFromArray = function (array) {
+  var length = array.length;
+  array.length = getRandomInRange(1, length + 1);
+  shuffleArray(array);
+  return array;
+};
 
 var getAdverts = function(advertsCount) {
   var adverts = [];
@@ -63,21 +61,21 @@ var getAdverts = function(advertsCount) {
     var advert =
     {
       author: {
-        avatar: getRandomItemFromArray(AVATAR)
+        avatar: 'img/avatars/user0' + (i+1) + '.png'
       },
 
       offer: {
-        title: getRandomItemFromArray(TITLE),
+        title: getRandomItemFromArray(TITLES),
         address: x + ','  + y,
         price: getRandomInRange(1000, 1000000),
-        type: getRandomItemFromArray(TYPE),
+        type: getRandomItemFromArray(TYPES),
         rooms: getRandomInRange(1, 5),
         guests: getRandomInRange(1, 5),
-        checkin: getRandomItemFromArray(CHECKIN),
-        checkout: getRandomItemFromArray(CHECKIN),
-        features: getArrayRandomLength(FEATURES),
+        checkin: getRandomItemFromArray(CHECKINS),
+        checkout: getRandomItemFromArray(CHECKINS),
+        features: getRandomItemsFromArray(FEATURES),
         description: '',
-        photos: PHOTOS//getArrayRandomOrder(PHOTOS)
+        photos: shuffleArray(PHOTOS)//getArrayRandomOrder(PHOTOS)
       },
 
       location: {
@@ -135,47 +133,40 @@ var renderCard = function (advert) {
   cardElement.querySelector('.popup__title').textContent = advert.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = advert.offer.address;
   cardElement.querySelector('.popup__text--price').textContent = advert.offer.price + '₽/ночь';
-  cardElement.querySelector('.popup__type').textContent =  dictionary[advert.offer.type];
+  cardElement.querySelector('.popup__type').textContent =  dictionaryFeatures[advert.offer.type];
   cardElement.querySelector('.popup__text--capacity').textContent = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей';
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ' выезд до ' + advert.offer.checkout;
   cardElement.querySelector('.popup__description').textContent = advert.offer.description;
   cardElement.querySelector('.popup__avatar').src = advert.author.avatar;
 
 
-
-  // var cer = cardElement.querySelector('.popup__features');
-  // var ber = cer.appendChild(li);
-// var afterItem = cardElement.querySelector('.popup__description');
-
-
 var listItem = cardElement.querySelector('.popup__features');
-
 var fragment = document.createDocumentFragment();
-
-for (var i = 0; i < (advert.offer.features).length; i++) {
+listItem.innerHTML = '';
+for (var i = 0; i < advert.offer.features.length; i++) {
   var item = document.createElement('li')
   item.classList.add('popup__feature');
-  item.classList.add('popup__feature--wifi');
+  item.classList.add('popup__feature--' + advert.offer.features[i]);
+  fragment.appendChild(item);
+}
+listItem.appendChild(fragment);
+
+
+var listPhoto = cardElement.querySelector('.popup__photos');
+var fragment = document.createDocumentFragment();
+listPhoto.innerHTML = '';
+for (var i = 0; i < advert.offer.photos.length; i++) {
+  var item = document.createElement('img')
+  item.classList.add('popup__photo');
+
+  item.src = advert.offer.photos[i];
+  item.width = 45;
+  item.height = 40;
+  item.alt = 'Фотография жилья';
 
   fragment.appendChild(item);
 }
-
-listItem.appendChild(fragment);
-
-// cardElement.insertBefore(listItem, afterItem);
-// cardElement.querySelector('.popup__features').appendChild('li').classList.add('popup__feature').classList.add('popup__feature--wifi');
-
-
-
-  // cardElement.querySelector('.popup__features')
-
-
-
-  // cardElement.querySelector('.popup__features').cl = advert.offer.features;
-
-
-    // cardElement.querySelector('.popup__photo').src = advert.offer.photos;
-
+listPhoto.appendChild(fragment);
 
 
 
@@ -191,4 +182,11 @@ var renderElements = function () {
 };
 
 similarListComponent.insertBefore(renderElements(), nextSibling);
+
+
+
+
+
+
+
 
