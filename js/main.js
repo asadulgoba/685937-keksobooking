@@ -11,7 +11,9 @@ var CHECKINS = ['12:00', '13:00', '14:00'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
-  'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];//  расположенных в произвольном порядке
+  'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
+
+var ADVERTS_COUNT = 8;
 
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 70;
@@ -26,21 +28,29 @@ var HouseTypeDictionary = {
   bungalo: 'Бунгало'
 };
 
+var similarListElement = document.querySelector('.map__pins');// here insert array with adverts
+var similarAdvertTemplate = document.querySelector('#pin')
+    .content
+    .querySelector('.map__pin');
+
+var similarListComponent = document.querySelector('.map');// here insert
+var nextSibling = document.querySelector('.map__filters-container');
+var similarCardTemplate = document.querySelector('#card')
+    .content
+    .querySelector('.map__card');
+
 var getRandomItemFromArray = function (items) {
-  var item = items[Math.floor(Math.random() * items.length)];
-  return item;
+  return items[Math.floor(Math.random() * items.length)];
 };
 
 var getRandomInRange = function (min, max) {
-  var number = Math.floor(Math.random() * (max - min)) + min;
-  return number;
+  return Math.floor(Math.random() * (max - min)) + min;
 };
 
 var shuffleArray = function (array) {
-  function compareRandom() {
+  return array.sort(function () {
     return Math.random() - 0.5;
-  }
-  return array.sort(compareRandom);
+  });
 };
 
 var getRandomItemsFromArray = function (array) {
@@ -88,15 +98,7 @@ var getAdverts = function (advertsCount) {
   return adverts;
 };
 
-var activeState = document.querySelector('.map');
-activeState.classList.remove('map--faded');
-
-var similarListElement = document.querySelector('.map__pins');// here insert array with adverts
-var similarAdvertTemplate = document.querySelector('#pin')
-    .content
-    .querySelector('.map__pin');
-
-var randomAdvert = getAdverts(8);// array with 8 adverts
+var randomAdvert = getAdverts(ADVERTS_COUNT);
 
 var renderAdvert = function (advert) {
   var advertElement = similarAdvertTemplate.cloneNode(true);
@@ -117,14 +119,6 @@ var renderAdvertsList = function () {
   return fragment;
 };
 
-similarListElement.appendChild(renderAdvertsList());
-
-var similarListComponent = document.querySelector('.map');// here insert
-var nextSibling = document.querySelector('.map__filters-container');
-var similarCardTemplate = document.querySelector('#card')
-    .content
-    .querySelector('.map__card');
-
 var renderCard = function (advert) {
   var cardElement = similarCardTemplate.cloneNode(true);
 
@@ -137,31 +131,37 @@ var renderCard = function (advert) {
   cardElement.querySelector('.popup__description').textContent = advert.offer.description;
   cardElement.querySelector('.popup__avatar').src = advert.author.avatar;
 
-  var listItem = cardElement.querySelector('.popup__features');
+
   var fragment = document.createDocumentFragment();
+
+  var listItem = cardElement.querySelector('.popup__features');
   listItem.innerHTML = '';
-  for (var i = 0; i < advert.offer.features.length; i++) {
-    var item = document.createElement('li');
-    item.classList.add('popup__feature');
-    item.classList.add('popup__feature--' + advert.offer.features[i]);
-    fragment.appendChild(item);
-  }
-  listItem.appendChild(fragment);
+  var createAdvertFeatures = function (features) {
+    for (var i = 0; i < features.length; i++) {
+      var item = document.createElement('li');
+      item.classList.add('popup__feature');
+      item.classList.add('popup__feature--' + features[i]);
+      fragment.appendChild(item);
+    }
+    return fragment;
+  };
+  listItem.appendChild(createAdvertFeatures(advert.offer.features));
 
   var listPhoto = cardElement.querySelector('.popup__photos');
   listPhoto.innerHTML = '';
-  for (i = 0; i < advert.offer.photos.length; i++) {
-    var photo = document.createElement('img');
-    photo.classList.add('popup__photo');
-
-    photo.src = advert.offer.photos[i];
-    photo.width = PHOTO_WIDTH;
-    photo.height = PHOTO_HEIGHT;
-    photo.alt = PHOTO_ALT;
-
-    fragment.appendChild(photo);
-  }
-  listPhoto.appendChild(fragment);
+  var createAdvertImages = function (photos) {
+    for (var i = 0; i < photos.length; i++) {
+      var photo = document.createElement('img');
+      photo.classList.add('popup__photo');
+      photo.src = photos[i];
+      photo.width = PHOTO_WIDTH;
+      photo.height = PHOTO_HEIGHT;
+      photo.alt = PHOTO_ALT;
+      fragment.appendChild(photo);
+    }
+    return fragment;
+  };
+  listPhoto.appendChild(createAdvertImages(advert.offer.photos));
 
   return cardElement;
 };
@@ -174,4 +174,9 @@ var renderElements = function () {
   return fragment;
 };
 
+var activeState = document.querySelector('.map');
+activeState.classList.remove('map--faded');
+
+similarListElement.appendChild(renderAdvertsList());
 similarListComponent.insertBefore(renderElements(), nextSibling);
+
