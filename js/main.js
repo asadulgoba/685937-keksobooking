@@ -15,6 +15,8 @@ var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.g
 
 var ADVERTS_COUNT = 8;
 
+var ESC_KEYCODE = 27;
+
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 70;
 var PHOTO_WIDTH = 45;
@@ -100,23 +102,6 @@ var getAdverts = function (advertsCount) {
 
 var randomAdvert = getAdverts(ADVERTS_COUNT);
 
-
-
-//     // if (elem) {
-//       console.log(elem);
-//       console.log(similarListComponent);
-//       // elem.parentNode.removeChild(elem);
-
-//     // }
-
-// advertElement = evt.currentTarget;
-    // similarListComponent.removeChild(updateCard(randomAdvert[evt.currentTarget.dataset.id]));
-
-    // similarListComponent.insertBefore(updateCard(randomAdvert[evt.currentTarget.dataset.id]), nextSibling);
-
-
-
-
 var renderAdvert = function (advert, index) {
   var advertElement = similarAdvertTemplate.cloneNode(true);
 
@@ -125,37 +110,41 @@ var renderAdvert = function (advert, index) {
   advertElement.querySelector('img').src = advert.author.avatar;
   advertElement.querySelector('img').alt = advert.offer.title;
   advertElement.dataset.id = index;
-  advertElement.addEventListener('click', function(evt) {
+
+
+  advertElement.addEventListener('click', function () {
 
     var cardAdvert = document.querySelectorAll('.map__card');
 
-    for (var i = 0; i < cardAdvert.length; i++) {
-      if (!cardAdvert[i].classList.contains('hidden')) {
-      cardAdvert[i].classList.add('hidden');
+    var hidecardAdvert = function () {
+      for (var i = 0; i < cardAdvert.length; i++) {
+        cardAdvert[i].classList.add('hidden');
       }
-    }
-    cardAdvert[evt.currentTarget.dataset.id].classList.remove('hidden');
-  });
+    };
+    hidecardAdvert();
 
+    cardAdvert[index].classList.remove('hidden');
+
+
+    var buttonCardAdvertClose = cardAdvert[index].querySelector('.popup__close');
+    buttonCardAdvertClose.addEventListener('click', function () {
+      cardAdvert[index].classList.add('hidden');
+    });
+
+    var onCardAdvertEscPress = function (evt) {
+      if (evt.keyCode === ESC_KEYCODE) {
+        cardAdvert[index].classList.add('hidden');
+      }
+    };
+    document.addEventListener('keydown', onCardAdvertEscPress);
+  });
   return advertElement;
 };
-
-
-// var buttonCardAdvertClose = document.querySelector('.popup__close');
-
-// buttonCardAdvertClose.addEventListener('click', function () {
-
-// })
-
-
-
-
-
 
 var renderAdvertsPins = function () {
   var fragment = document.createDocumentFragment();
   for (var i = 0; i < randomAdvert.length; i++) {
-    fragment.appendChild(renderAdvert(randomAdvert[i], i))
+    fragment.appendChild(renderAdvert(randomAdvert[i], i));
   }
   return fragment;
 };
@@ -207,15 +196,13 @@ var updateCard = function (advert, index) {
   return cardElement;
 };
 
-
 var renderAdvertsCards = function () {
   var fragment = document.createDocumentFragment();
   for (var i = 0; i < randomAdvert.length; i++) {
-    fragment.appendChild(updateCard(randomAdvert[i], i))
+    fragment.appendChild(updateCard(randomAdvert[i], i));
   }
   return fragment;
 };
-
 
 var activeState = document.querySelector('.map');
 
@@ -224,25 +211,25 @@ var fieldSetAdvert = document.querySelectorAll('.ad-form fieldset');
 
 var disableFieldSetAdvert = function () {
   for (var i = 0; i < fieldSetAdvert.length; i++) {
-  fieldSetAdvert[i].setAttribute("disabled", "disabled");
-}
+    fieldSetAdvert[i].setAttribute('disabled', 'disabled');
+  }
 };
 
 disableFieldSetAdvert();
 
 var enableFieldSetAdvert = function () {
   for (var i = 0; i < fieldSetAdvert.length; i++) {
-  fieldSetAdvert[i].removeAttribute("disabled", "disabled");
+    fieldSetAdvert[i].removeAttribute('disabled', 'disabled');
   }
 };
 
 var initialPinButton = document.querySelector('.map__pin--main');
+var formAdress = document.querySelector('#address');// insert here adress
+var coordinatePin = document.querySelector('.map__pin--main');
 
-var formAdress = document.querySelector('#address');  // insert here adress
-
-var coordinatePin = document.querySelector('.map__pin--main')
-
-
+var renderFormAdress = function () {
+  formAdress.value = +coordinatePin.style.left.replace(/\D+/g, '') + PIN_WIDTH / 2 + ', ' + coordinatePin.style.top.replace(/\D+/g, '');
+};
 
 initialPinButton.addEventListener('mouseup', function () {
 
@@ -250,6 +237,7 @@ initialPinButton.addEventListener('mouseup', function () {
   similarListComponent.insertBefore(renderAdvertsCards(), nextSibling);
 
   var cardAdvert = document.querySelectorAll('.map__card');
+
   var hidecardAdvert = function () {
     for (var i = 0; i < cardAdvert.length; i++) {
       cardAdvert[i].classList.add('hidden');
@@ -260,7 +248,12 @@ initialPinButton.addEventListener('mouseup', function () {
   activeState.classList.remove('map--faded');
   formAdvert.classList.remove('ad-form--disabled');
   enableFieldSetAdvert();
-  formAdress.value = +coordinatePin.style.left.replace(/\D+/g, "") + PIN_WIDTH/2 + ', ' + coordinatePin.style.top.replace(/\D+/g, "");
+  renderFormAdress();
+}, {once: true});
 
-}, {once : true});
-
+var resetFormButton = document.querySelector('.ad-form__reset');
+resetFormButton.addEventListener('click', function (evt) {
+  evt.preventDefault();
+  formAdvert.reset();
+  renderFormAdress();
+});
