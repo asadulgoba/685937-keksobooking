@@ -15,6 +15,8 @@ var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.g
 
 var ADVERTS_COUNT = 8;
 
+var ESC_KEYCODE = 27;
+
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 70;
 var PHOTO_WIDTH = 45;
@@ -28,7 +30,7 @@ var HouseTypeDictionary = {
   bungalo: 'Бунгало'
 };
 
-var similarListElement = document.querySelector('.map__pins');// here insert array with adverts
+var similarListElement = document.querySelector('.map__pins');// here insert pins-adverts
 var similarAdvertTemplate = document.querySelector('#pin')
     .content
     .querySelector('.map__pin');
@@ -65,8 +67,8 @@ var getAdverts = function (advertsCount) {
   var adverts = [];
   for (var i = 0; i < advertsCount; i++) {
 
-    var x = getRandomInRange(40, 1200);
-    var y = getRandomInRange(130, 630);
+    var x = getRandomInRange(50, 1100);
+    var y = getRandomInRange(130, 600);
 
     var advert =
     {
@@ -100,26 +102,54 @@ var getAdverts = function (advertsCount) {
 
 var randomAdvert = getAdverts(ADVERTS_COUNT);
 
-var renderAdvert = function (advert) {
+var renderAdvert = function (advert, index) {
   var advertElement = similarAdvertTemplate.cloneNode(true);
 
-  advertElement.style.left = (advert.location.x - PIN_WIDTH) + 'px';
-  advertElement.style.top = (advert.location.y - PIN_HEIGHT) + 'px';
+  advertElement.style.left = (advert.location.x + PIN_WIDTH / 2) + 'px';
+  advertElement.style.top = (advert.location.y + PIN_HEIGHT) + 'px';
   advertElement.querySelector('img').src = advert.author.avatar;
   advertElement.querySelector('img').alt = advert.offer.title;
+  advertElement.dataset.id = index;
 
+
+  advertElement.addEventListener('click', function () {
+
+    var cardAdvert = document.querySelectorAll('.map__card');
+
+    var hidecardAdvert = function () {
+      for (var i = 0; i < cardAdvert.length; i++) {
+        cardAdvert[i].classList.add('hidden');
+      }
+    };
+    hidecardAdvert();
+
+    cardAdvert[index].classList.remove('hidden');
+
+
+    var buttonCardAdvertClose = cardAdvert[index].querySelector('.popup__close');
+    buttonCardAdvertClose.addEventListener('click', function () {
+      cardAdvert[index].classList.add('hidden');
+    });
+
+    var onCardAdvertEscPress = function (evt) {
+      if (evt.keyCode === ESC_KEYCODE) {
+        cardAdvert[index].classList.add('hidden');
+      }
+    };
+    document.addEventListener('keydown', onCardAdvertEscPress);
+  });
   return advertElement;
 };
 
-var renderAdvertsList = function () {
+var renderAdvertsPins = function () {
   var fragment = document.createDocumentFragment();
   for (var i = 0; i < randomAdvert.length; i++) {
-    fragment.appendChild(renderAdvert(randomAdvert[i]));
+    fragment.appendChild(renderAdvert(randomAdvert[i], i));
   }
   return fragment;
 };
 
-var renderCard = function (advert) {
+var updateCard = function (advert, index) {
   var cardElement = similarCardTemplate.cloneNode(true);
 
   cardElement.querySelector('.popup__title').textContent = advert.offer.title;
@@ -130,7 +160,7 @@ var renderCard = function (advert) {
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ' выезд до ' + advert.offer.checkout;
   cardElement.querySelector('.popup__description').textContent = advert.offer.description;
   cardElement.querySelector('.popup__avatar').src = advert.author.avatar;
-
+  cardElement.dataset.id = index;
 
   var fragment = document.createDocumentFragment();
 
@@ -166,17 +196,64 @@ var renderCard = function (advert) {
   return cardElement;
 };
 
-var renderElements = function () {
+var renderAdvertsCards = function () {
   var fragment = document.createDocumentFragment();
   for (var i = 0; i < randomAdvert.length; i++) {
-    fragment.appendChild(renderCard(randomAdvert[i]));
+    fragment.appendChild(updateCard(randomAdvert[i], i));
   }
   return fragment;
 };
 
 var activeState = document.querySelector('.map');
-activeState.classList.remove('map--faded');
 
-similarListElement.appendChild(renderAdvertsList());
-similarListComponent.insertBefore(renderElements(), nextSibling);
+var formAdvert = document.querySelector('.ad-form');
+var fieldSetAdvert = document.querySelectorAll('.ad-form fieldset');
 
+var disableFieldSetAdvert = function () {
+  for (var i = 0; i < fieldSetAdvert.length; i++) {
+    fieldSetAdvert[i].setAttribute('disabled', 'disabled');
+  }
+};
+
+disableFieldSetAdvert();
+
+var enableFieldSetAdvert = function () {
+  for (var i = 0; i < fieldSetAdvert.length; i++) {
+    fieldSetAdvert[i].removeAttribute('disabled', 'disabled');
+  }
+};
+
+var initialPinButton = document.querySelector('.map__pin--main');
+var formAdress = document.querySelector('#address');// insert here adress
+var coordinatePin = document.querySelector('.map__pin--main');
+
+var renderFormAdress = function () {
+  formAdress.value = +coordinatePin.style.left.replace(/\D+/g, '') + PIN_WIDTH / 2 + ', ' + coordinatePin.style.top.replace(/\D+/g, '');
+};
+
+initialPinButton.addEventListener('mouseup', function () {
+
+  similarListElement.appendChild(renderAdvertsPins());
+  similarListComponent.insertBefore(renderAdvertsCards(), nextSibling);
+
+  var cardAdvert = document.querySelectorAll('.map__card');
+
+  var hidecardAdvert = function () {
+    for (var i = 0; i < cardAdvert.length; i++) {
+      cardAdvert[i].classList.add('hidden');
+    }
+  };
+  hidecardAdvert();
+
+  activeState.classList.remove('map--faded');
+  formAdvert.classList.remove('ad-form--disabled');
+  enableFieldSetAdvert();
+  renderFormAdress();
+}, {once: true});
+
+var resetFormButton = document.querySelector('.ad-form__reset');
+resetFormButton.addEventListener('click', function (evt) {
+  evt.preventDefault();
+  formAdvert.reset();
+  renderFormAdress();
+});
