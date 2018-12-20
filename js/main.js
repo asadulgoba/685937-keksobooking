@@ -258,33 +258,19 @@ resetFormButton.addEventListener('click', function (evt) {
   renderFormAdress();
 });
 
-
-formAdvert.setAttribute('action', 'https://js.dump.academy/keksobooking');
-
-
-var titleAdvert = document.getElementById('title');
-// titleAdvert.required = true;
-titleAdvert.setAttribute('minlength', 30);
-titleAdvert.setAttribute('maxlength', 100);
-
 var priceAdvert = document.getElementById('price');
-// priceAdvert.required = true;
-priceAdvert.setAttribute('maxlength', 7);
-priceAdvert.setAttribute('max', 1000000);
-
-
 var typeHouseSelect = document.getElementById('type');
 typeHouseSelect.onchange = function Add() {
-  if (typeHouseSelect.value == 'bungalo') {
+  if (typeHouseSelect.value === 'bungalo') {
     priceAdvert.setAttribute('min', 0);
     priceAdvert.setAttribute('placeholder', 0);
-  } else if (typeHouseSelect.value == 'flat') {
+  } else if (typeHouseSelect.value === 'flat') {
     priceAdvert.setAttribute('min', 1000);
     priceAdvert.setAttribute('placeholder', 1000);
-  } else if (typeHouseSelect.value == 'house') {
+  } else if (typeHouseSelect.value === 'house') {
     priceAdvert.setAttribute('min', 5000);
     priceAdvert.setAttribute('placeholder', 5000);
-  } else if (typeHouseSelect.value == 'palace') {
+  } else if (typeHouseSelect.value === 'palace') {
     priceAdvert.setAttribute('min', 10000);
     priceAdvert.setAttribute('placeholder', 10000);
   }
@@ -292,37 +278,38 @@ typeHouseSelect.onchange = function Add() {
 
 var timeInSelect = document.getElementById('timein');
 var timeOutSelect = document.getElementById('timeout');
-timeInSelect.onchange = function(evt) {
+timeInSelect.onchange = function (evt) {
   this.value = evt.target.value;
   timeOutSelect.value = evt.target.value;
 };
-timeOutSelect.onchange = function(evt) {
+timeOutSelect.onchange = function (evt) {
   this.value = evt.target.value;
   timeInSelect.value = evt.target.value;
 };
 
 
-
 var roomNumberSelect = document.getElementById('room_number');
-var capacitySelect = document.getElementById('capacity')
-
-
-capacitySelect.onchange = function() {
-
-  if (roomNumberSelect.value < capacitySelect.value) {
-    capacitySelect.setCustomValidity("так не катит");
-  }
-  else if (roomNumberSelect.value >= capacitySelect.value) {
-
-    if (roomNumberSelect.value === 100 && capacitySelect.value != 0 ||
-      (roomNumberSelect.value != 100 && capacitySelect.value === 0)) {
-      capacitySelect.setCustomValidity("так не катит");
+var capacitySelect = document.getElementById('capacity');
+var changeCapacitySelect = function () {
+  var currentValue = this.value;
+  if (currentValue == 100) {
+    for (var i = 0; i < capacitySelect.children.length; i++) {
+      if (capacitySelect.children[i].value == 0) {
+        capacitySelect.children[i].disabled = false;
+        capacitySelect.children[i].selected = true;
+      } else {
+        capacitySelect.children[i].disabled = true;
+      }
     }
-    else {
-      capacitySelect.setCustomValidity("");
+  } else {
+    for (i = capacitySelect.children.length - 1; i >= 0; i--) {
+      if (capacitySelect.children[i].value <= currentValue && capacitySelect.children[i].value != 0) {
+        capacitySelect.children[i].disabled = false;
+        capacitySelect.children[i].selected = true;
+      } else {
+        capacitySelect.children[i].disabled = true;
+      }
     }
-
   }
-
-
-}
+};
+roomNumberSelect.addEventListener('change', changeCapacitySelect);
