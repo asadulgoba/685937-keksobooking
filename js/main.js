@@ -249,6 +249,10 @@ initialPinButton.addEventListener('mouseup', function () {
   formAdvert.classList.remove('ad-form--disabled');
   enableFieldSetAdvert();
   renderFormAdress();
+
+  changePriceAdvertSelect();
+  changeCapacitySelect();
+
 }, {once: true});
 
 var resetFormButton = document.querySelector('.ad-form__reset');
@@ -260,7 +264,8 @@ resetFormButton.addEventListener('click', function (evt) {
 
 var priceAdvert = document.getElementById('price');
 var typeHouseSelect = document.getElementById('type');
-typeHouseSelect.onchange = function Add() {
+
+var changePriceAdvertSelect = function Add() {
   if (typeHouseSelect.value === 'bungalo') {
     priceAdvert.setAttribute('min', 0);
     priceAdvert.setAttribute('placeholder', 0);
@@ -276,6 +281,8 @@ typeHouseSelect.onchange = function Add() {
   }
 };
 
+typeHouseSelect.addEventListener('change', changePriceAdvertSelect);
+
 var timeInSelect = document.getElementById('timein');
 var timeOutSelect = document.getElementById('timeout');
 timeInSelect.onchange = function (evt) {
@@ -287,11 +294,10 @@ timeOutSelect.onchange = function (evt) {
   timeInSelect.value = evt.target.value;
 };
 
-
 var roomNumberSelect = document.getElementById('room_number');
 var capacitySelect = document.getElementById('capacity');
 var changeCapacitySelect = function () {
-  var currentValue = this.value;
+  var currentValue = roomNumberSelect.value;
   if (currentValue == 100) {
     for (var i = 0; i < capacitySelect.children.length; i++) {
       if (capacitySelect.children[i].value == 0) {
