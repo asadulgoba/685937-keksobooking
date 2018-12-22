@@ -286,11 +286,9 @@ typeHouseSelect.addEventListener('change', changePriceAdvertSelect);
 var timeInSelect = document.getElementById('timein');
 var timeOutSelect = document.getElementById('timeout');
 timeInSelect.onchange = function (evt) {
-  this.value = evt.target.value;
   timeOutSelect.value = evt.target.value;
 };
 timeOutSelect.onchange = function (evt) {
-  this.value = evt.target.value;
   timeInSelect.value = evt.target.value;
 };
 
@@ -298,9 +296,9 @@ var roomNumberSelect = document.getElementById('room_number');
 var capacitySelect = document.getElementById('capacity');
 var changeCapacitySelect = function () {
   var currentValue = roomNumberSelect.value;
-  if (currentValue == 100) {
+  if (+currentValue === 100) {
     for (var i = 0; i < capacitySelect.children.length; i++) {
-      if (capacitySelect.children[i].value == 0) {
+      if (+capacitySelect.children[i].value === 0) {
         capacitySelect.children[i].disabled = false;
         capacitySelect.children[i].selected = true;
       } else {
@@ -309,7 +307,7 @@ var changeCapacitySelect = function () {
     }
   } else {
     for (i = capacitySelect.children.length - 1; i >= 0; i--) {
-      if (capacitySelect.children[i].value <= currentValue && capacitySelect.children[i].value != 0) {
+      if (+capacitySelect.children[i].value <= +currentValue && +capacitySelect.children[i].value !== 0) {
         capacitySelect.children[i].disabled = false;
         capacitySelect.children[i].selected = true;
       } else {
