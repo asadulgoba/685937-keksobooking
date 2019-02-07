@@ -67,8 +67,8 @@ var getAdverts = function (advertsCount) {
   var adverts = [];
   for (var i = 0; i < advertsCount; i++) {
 
-    var x = getRandomInRange(50, 1100);
-    var y = getRandomInRange(130, 600);
+    var x = getRandomInRange(0, similarListElement.offsetWidth);
+    var y = getRandomInRange(130, 630);
 
     var advert =
     {
@@ -105,8 +105,9 @@ var randomAdvert = getAdverts(ADVERTS_COUNT);
 var renderAdvert = function (advert, index) {
   var advertElement = similarAdvertTemplate.cloneNode(true);
 
-  advertElement.style.left = (advert.location.x + PIN_WIDTH / 2) + 'px';
-  advertElement.style.top = (advert.location.y + PIN_HEIGHT) + 'px';
+  advertElement.style.left = (advert.location.x) + 'px';
+  advertElement.style.top = (advert.location.y) + 'px';
+
   advertElement.querySelector('img').src = advert.author.avatar;
   advertElement.querySelector('img').alt = advert.offer.title;
   advertElement.dataset.id = index;
@@ -153,7 +154,8 @@ var updateCard = function (advert, index) {
   var cardElement = similarCardTemplate.cloneNode(true);
 
   cardElement.querySelector('.popup__title').textContent = advert.offer.title;
-  cardElement.querySelector('.popup__text--address').textContent = advert.offer.address;
+
+  cardElement.querySelector('.popup__text--address').textContent = (advert.location.x + PIN_WIDTH / 2) + ', ' + (advert.location.y + PIN_HEIGHT);
   cardElement.querySelector('.popup__text--price').textContent = advert.offer.price + '₽/ночь';
   cardElement.querySelector('.popup__type').textContent = HouseTypeDictionary[advert.offer.type];
   cardElement.querySelector('.popup__text--capacity').textContent = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей';
@@ -223,38 +225,104 @@ var enableFieldSetAdvert = function () {
   }
 };
 
+
 var initialPinButton = document.querySelector('.map__pin--main');
 var formAdress = document.querySelector('#address');// insert here adress
-var coordinatePin = document.querySelector('.map__pin--main');
 
 var renderFormAdress = function () {
-  formAdress.value = +coordinatePin.style.left.replace(/\D+/g, '') + PIN_WIDTH / 2 + ', ' + coordinatePin.style.top.replace(/\D+/g, '');
+  formAdress.value = +initialPinButton.style.left.replace(/\D+/g, '') + Math.round(initialPinButton.offsetWidth / 2) + ', ' + (+initialPinButton.style.top.replace(/\D+/g, '') + initialPinButton.offsetHeight + 13);
 };
 
-initialPinButton.addEventListener('mouseup', function () {
 
-  similarListElement.appendChild(renderAdvertsPins());
-  similarListComponent.insertBefore(renderAdvertsCards(), nextSibling);
+similarListElement.appendChild(renderAdvertsPins());
+similarListComponent.insertBefore(renderAdvertsCards(), nextSibling);
 
-  var cardAdvert = document.querySelectorAll('.map__card');
+var pinAdvert = document.querySelectorAll('.map__pin');
+var hidePinAdvert = function () {
+  for (var i = 1; i < pinAdvert.length; i++) {
+    pinAdvert[i].classList.add('hidden');
+  }
+};
+hidePinAdvert();
 
-  var hidecardAdvert = function () {
-    for (var i = 0; i < cardAdvert.length; i++) {
-      cardAdvert[i].classList.add('hidden');
-    }
+var showPinAdvert = function () {
+  for (var i = 1; i < pinAdvert.length; i++) {
+    pinAdvert[i].classList.remove('hidden');
+  }
+};
+
+
+var cardAdvert = document.querySelectorAll('.map__card');
+var hideCardAdvert = function () {
+  for (var i = 0; i < cardAdvert.length; i++) {
+    cardAdvert[i].classList.add('hidden');
+  }
+};
+hideCardAdvert();
+
+initialPinButton.addEventListener('mousedown', function (evt) {
+  evt.preventDefault();
+
+  var startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
   };
-  hidecardAdvert();
 
-  activeState.classList.remove('map--faded');
-  formAdvert.classList.remove('ad-form--disabled');
-  enableFieldSetAdvert();
-  renderFormAdress();
+  var dragged = false;
 
-  changePriceAdvertSelect();
-  changeCapacitySelect();
 
-}, {once: true});
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
 
+    dragged = true;
+
+    var limitValue = function (number, minValue, maxValue) {
+      var val = Math.min(maxValue, Math.max(minValue, number));
+      return val;
+    };
+
+    var clientX = limitValue(moveEvt.clientX, similarListComponent.offsetLeft + 35, similarListElement.offsetWidth + similarListComponent.offsetLeft - 35);
+    var clientY = limitValue(moveEvt.clientY, 130, 630);
+    var shift = {
+      x: startCoords.x - clientX,
+      y: startCoords.y - clientY
+    };
+
+
+    startCoords = {
+      x: clientX,
+      y: clientY
+    };
+
+    initialPinButton.style.top = (initialPinButton.offsetTop - shift.y) + 'px';
+    initialPinButton.style.left = (initialPinButton.offsetLeft - shift.x) + 'px';
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+
+    if (dragged) {
+
+      showPinAdvert();
+
+      activeState.classList.remove('map--faded');
+      formAdvert.classList.remove('ad-form--disabled');
+      enableFieldSetAdvert();
+      renderFormAdress();
+
+      changePriceAdvertSelect();
+      changeCapacitySelect();
+
+    }
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  };
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+});
+
+// reseting form
 var resetFormButton = document.querySelector('.ad-form__reset');
 resetFormButton.addEventListener('click', function (evt) {
   evt.preventDefault();
