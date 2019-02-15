@@ -19,6 +19,7 @@
 
     var listItem = cardElement.querySelector('.popup__features');
     listItem.innerHTML = '';
+
     var createAdvertFeatures = function (features) {
       for (var i = 0; i < features.length; i++) {
         var item = document.createElement('li');

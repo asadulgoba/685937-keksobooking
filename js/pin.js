@@ -14,26 +14,25 @@
 
     advertElement.addEventListener('click', function () {
 
-      var cardAdvert = document.querySelectorAll('.map__card');
-
+      window.cardAdvert = document.querySelectorAll('.map__card');
       var hidecardAdvert = function () {
-        for (var i = 0; i < cardAdvert.length; i++) {
-          cardAdvert[i].classList.add('hidden');
+        for (var i = 0; i < window.ADVERTS_COUNT; i++) {
+          window.cardAdvert[i].classList.add('hidden');
         }
       };
       hidecardAdvert();
 
-      cardAdvert[index].classList.remove('hidden');
+      window.cardAdvert[index].classList.remove('hidden');
 
 
-      var buttonCardAdvertClose = cardAdvert[index].querySelector('.popup__close');
+      var buttonCardAdvertClose = window.cardAdvert[index].querySelector('.popup__close');
       buttonCardAdvertClose.addEventListener('click', function () {
-        cardAdvert[index].classList.add('hidden');
+        window.cardAdvert[index].classList.add('hidden');
       });
 
       var onCardAdvertEscPress = function (evt) {
         if (evt.keyCode === window.ESC_KEYCODE) {
-          cardAdvert[index].classList.add('hidden');
+          window.cardAdvert[index].classList.add('hidden');
         }
       };
       document.addEventListener('keydown', onCardAdvertEscPress);

@@ -41,15 +41,14 @@
       upEvt.preventDefault();
 
       var showPinAdvert = function () {
-        for (var i = 1; i < window.pinAdvert.length; i++) {
+        for (var i = 1; i < window.ADVERTS_COUNT + 1; i++) {
           window.pinAdvert[i].classList.remove('hidden');
         }
       };
-
       if (dragged) {
         showPinAdvert();
         window.activeState.classList.remove('map--faded');
-        window.formAdvert.classList.remove('ad-form--disabled');
+        window.form.classList.remove('ad-form--disabled');
         window.enableFieldSetAdvert();
         window.renderFormAdress();
         window.changePriceAdvertSelect();

@@ -2,7 +2,7 @@
 
 (function () {
 
-  window.formAdvert = document.querySelector('.ad-form');
+  window.form = document.querySelector('.ad-form');
   var fieldSetAdvert = document.querySelectorAll('.ad-form fieldset');
 
   var priceAdvert = document.getElementById('price');
@@ -20,14 +20,18 @@
       fieldSetAdvert[i].removeAttribute('disabled', 'disabled');
     }
   };
-
   var resetFormButton = document.querySelector('.ad-form__reset');
+
+  var onResetForm = function () {
+    window.form.reset();
+    window.renderFormAdress();
+    window.changePriceAdvertSelect();
+    window.changeCapacitySelect();
+  };
   resetFormButton.addEventListener('click', function (evt) {
     evt.preventDefault();
-    window.formAdvert.reset();
-    window.renderFormAdress();
+    onResetForm();
   });
-
   window.changePriceAdvertSelect = function Add() {
     if (typeHouseSelect.value === 'bungalo') {
       priceAdvert.setAttribute('min', 0);
@@ -88,4 +92,41 @@
     formAdress.value = +window.initialPinButton.style.left.replace(/\D+/g, '') + Math.round(window.initialPinButton.offsetWidth / 2) + ', ' + (+window.initialPinButton.style.top.replace(/\D+/g, '') + window.initialPinButton.offsetHeight + 13);
   };
 
+  var successHandler = function () {
+    var node = document.createElement('div');
+    node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
+    node.style.position = 'fixed';
+    node.style.fontSize = '30px';
+    node.textContent = 'Данные формы успешно загружены';
+    document.body.insertAdjacentElement('afterbegin', node);
+  };
+
+
+  var errorTemplate = document.getElementById('error').content.querySelector('.error');
+  var errorWindow = errorTemplate.cloneNode(true);
+  var errorMessage = errorWindow.querySelector('.error__message');
+  var errorButton = errorWindow.querySelector('.error__button');
+
+  var errorHandler = function () {
+    errorMessage.textContent = 'Ошибка загрузки данных формы';
+    document.body.insertAdjacentElement('afterbegin', errorWindow);
+  };
+
+  errorButton.addEventListener('click', function () {
+    errorWindow.classList.add('hidden');
+  });
+
+  window.form.addEventListener('submit', function (evt) {
+    window.backend.upload(
+        new FormData(window.form),
+        function () {
+          onResetForm();
+          successHandler();
+        },
+        errorHandler);
+    evt.preventDefault();
+  });
+
 })();
+
+
