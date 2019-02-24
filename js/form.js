@@ -20,6 +20,28 @@
       fieldSetAdvert[i].removeAttribute('disabled', 'disabled');
     }
   };
+
+
+  var filterSelectForm = document.querySelectorAll('.map__filter');
+  var filterFormFieldset = document.querySelector('.map__features');
+
+  window.disabledFilterForm = function () {
+    for (var i = 0; i < filterSelectForm.length; i++) {
+      filterSelectForm[i].setAttribute('disabled', 'disabled');
+    }
+    filterFormFieldset.setAttribute('disabled', 'disabled');
+  };
+  window.disabledFilterForm();
+
+
+  window.enableFilterForm = function () {
+    for (var i = 0; i < filterSelectForm.length; i++) {
+      filterSelectForm[i].removeAttribute('disabled', 'disabled');
+    }
+    filterFormFieldset.removeAttribute('disabled', 'disabled');
+  };
+
+
   var resetFormButton = document.querySelector('.ad-form__reset');
 
   var onResetForm = function () {
@@ -97,8 +119,9 @@
     node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
     node.style.position = 'fixed';
     node.style.fontSize = '30px';
+    setTimeout(document.body.insertAdjacentElement('afterbegin', node), 5000);
     node.textContent = 'Данные формы успешно загружены';
-    document.body.insertAdjacentElement('afterbegin', node);
+
   };
 
 

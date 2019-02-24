@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+
   window.initialPinButton.addEventListener('mousedown', function (evt) {
     evt.preventDefault();
 
@@ -40,16 +41,18 @@
     var onMouseUp = function (upEvt) {
       upEvt.preventDefault();
 
+      var pinAdvert = document.querySelectorAll('.map__pin');
       var showPinAdvert = function () {
-        for (var i = 1; i < window.ADVERTS_COUNT + 1; i++) {
-          window.pinAdvert[i].classList.remove('hidden');
+        for (var i = 1; i < pinAdvert.length; i++) {
+          pinAdvert[i].classList.remove('hidden');
         }
       };
       if (dragged) {
-        showPinAdvert();
+        setTimeout(showPinAdvert, 500);
         window.activeState.classList.remove('map--faded');
         window.form.classList.remove('ad-form--disabled');
         window.enableFieldSetAdvert();
+        window.enableFilterForm();
         window.renderFormAdress();
         window.changePriceAdvertSelect();
         window.changeCapacitySelect();

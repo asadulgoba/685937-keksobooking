@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  window.card = function (advert, index) {
+  var createCardElement = function (advert, index) {
     var cardElement = window.similarCardTemplate.cloneNode(true);
 
     cardElement.querySelector('.popup__title').textContent = advert.offer.title;
@@ -48,5 +48,26 @@
     listPhoto.appendChild(createAdvertImages(advert.offer.photos));
 
     return cardElement;
+  };
+
+
+  //  render cards/////////////////////////////////////////////////
+  window.renderCards = function (data) {
+    var renderAdvertsCards = function () {
+      var fragment = document.createDocumentFragment();
+      for (var i = 0; i < data.length; i++) {
+        fragment.appendChild(createCardElement(data[i], i));
+      }
+      return fragment;
+    };
+    window.similarListComponent.insertBefore(renderAdvertsCards(), window.nextSibling);
+
+    window.cardAdvert = document.querySelectorAll('.map__card');
+    var hideCardAdvert = function () {
+      for (var i = 0; i < data.length; i++) {
+        window.cardAdvert[i].classList.add('hidden');
+      }
+    };
+    hideCardAdvert();
   };
 })();
